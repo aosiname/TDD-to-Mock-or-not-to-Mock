@@ -67,24 +67,8 @@ public void StoreOnlyDuplicateDetailsFromRowsIntoCollection()
 
     IEventRepository EventsMockDatabase = mockEventsRepository.Object;
 
-    var eventLogObjects = new List<EventLogObj>();
-    var duplicateEventLogObjects = new List<EventLogObj>();
+    var duplicates = events.GroupBy(s => s.TableKey)
+        .SelectMany(grp => grp.Skip(1)).ToList();
 
-    foreach (EventLogObj elo in EventsMockDatabase.GetEvents())
-    {
-        var existing = eventLogObjects.Where(
-            e => e.TableKey.Equals(elo.TableKey)
-        ).ToList();
-
-        if (existing.Count == 0)
-        {
-            eventLogObjects.Add(elo);
-        }
-        else
-        {
-            duplicateEventLogObjects.Add(elo);
-        }
-    }
-
-    Assert.AreEqual(2, duplicateEventLogObjects.Count);
+    Assert.AreEqual(2, duplicates.Count);
 }
